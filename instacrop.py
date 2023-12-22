@@ -16,9 +16,12 @@ def validate_image_processing(num_images, new_width, img):
         raise ImageProcessingError(f"Error! Cannot produce {num_images} images from the original photo.\nMax number of photos is {img.width // new_width}. Reduce the hight to crop more photos in a row.")
 
 def max_num_cropped_images(img_name) -> int:
-    img = Image.open(img_name)
-    width = img.height * 4 // 5
-    return (img.width // width)
+    try :
+        img = Image.open(img_name)
+        width = img.height * 4 // 5
+        return (img.width // width)
+    except:
+        return 0
 
 def create_cropped_image(num_images, img_name):
 
