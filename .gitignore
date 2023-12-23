@@ -1,2 +1,7 @@
 venv
 instacrop.cpython-312.pyc
+build
+frontend.spec
+dist
+output
+.DS_Store
