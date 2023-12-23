@@ -50,7 +50,7 @@ def create_cropped_image(num_images, img_name):
             save_folder = f"{img_name.strip(filename)}{filename.split('.')[0]}-cropped"
 
             os.makedirs(save_folder, exist_ok=True)
-            cropped_img.save(os.path.join(save_folder, f"{num}-{filename}"))
+            cropped_img.save(os.path.join(save_folder, f"{num}-{filename}"), quality=100)
 
             left += new_width
         

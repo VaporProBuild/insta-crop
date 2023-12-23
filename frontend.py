@@ -1,5 +1,6 @@
 from instacrop import create_cropped_image, max_num_cropped_images
 
+import os
 import tkinter as tk
 from tkinter import filedialog
 from PIL import ImageTk, Image
@@ -28,7 +29,7 @@ class FileBrowserApp:
 
         # Success label (initally hidden)
         self.success_label_text = tk.StringVar()
-        self.success_label = tk.Label(master, textvariable=self.success_label_text)
+        self.success_label = tk.Label(master, textvariable=self.success_label_text, wraplength=600)
 
     def browse_file(self):
         file_path = filedialog.askopenfilename()
@@ -51,10 +52,17 @@ class FileBrowserApp:
             self.enter_button.grid(row=5, column=0, padx=10, pady=10, columnspan=3)
 
     def on_enter(self):
-        print(f"file path: {self.filepath}, slider value: {self.slider.get()}")
         saved_folder = create_cropped_image(self.slider.get(), self.filepath)
         self.success_label_text.set(f"Successfully saved in folder: {saved_folder}")
-        self.success_label.grid(row=6, column=0, padx=10, pady=10, columnspan=3)
+        for num in range(self.slider.get()):
+            num+=1
+            image = ImageTk.PhotoImage(Image.open(f"{saved_folder}/{num}-{os.path.basename(self.filepath)}"))
+            self.label_image = tk.Label(image=image)
+            self.label_image.image = image
+            # Position image
+            self.label_image.grid(row=6, column=num-1, padx=10, pady=10)
+
+        self.success_label.grid(row=7, column=0, padx=10, pady=10, columnspan=3)
 
     def crop(self):
         create_cropped_image(self.slider.get(), self.filepath)
