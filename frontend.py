@@ -26,6 +26,10 @@ class FileBrowserApp:
         self.slider = tk.Scale(master, from_=1, to=1, orient=tk.HORIZONTAL)
         self.enter_button = tk.Button(master, text="Enter", command=self.on_enter)
 
+        # Success label (initally hidden)
+        self.success_label_text = tk.StringVar()
+        self.success_label = tk.Label(master, textvariable=self.success_label_text)
+
     def browse_file(self):
         file_path = filedialog.askopenfilename()
         if file_path:
@@ -33,8 +37,6 @@ class FileBrowserApp:
 
             # Show photo slider and enter button after file has been chosen
             # Display file that has been choosen
-            #display photo here after it has been selected
-            # Create a photoimage object of the image in the path
 
             image = ImageTk.PhotoImage(Image.open(self.filepath))
             self.label_image = tk.Label(image=image)
@@ -50,10 +52,12 @@ class FileBrowserApp:
 
     def on_enter(self):
         print(f"file path: {self.filepath}, slider value: {self.slider.get()}")
+        saved_folder = create_cropped_image(self.slider.get(), self.filepath)
+        self.success_label_text.set(f"Successfully saved in folder: {saved_folder}")
+        self.success_label.grid(row=6, column=0, padx=10, pady=10, columnspan=3)
 
     def crop(self):
         create_cropped_image(self.slider.get(), self.filepath)
-
 
 
 if __name__ == "__main__":
