@@ -36,6 +36,15 @@ def create_cropped_image(num_images, img_name):
         # Calculate the cropping box first left coordinate
         left = middle - (num_images/2) * new_width # need to do some math to figure this out
 
+        save_folder = f"{img_name.strip(filename)}{filename.split('.')[0]}-cropped"
+
+        # If folder already exists in location then remove the files in it. If it doesn't exist create it.
+        if os.path.exists(save_folder):
+            for file in os.listdir(save_folder):
+                os.remove(os.path.join(save_folder, file))
+        else:
+            os.mkdir(save_folder)
+
         for num in range(num_images):
             num+=1
 
@@ -45,11 +54,6 @@ def create_cropped_image(num_images, img_name):
             # Crop the image
             cropped_img = img.crop((left, 0, right, lower))
             #cropped_img.show() #testcase to show cropped images
-           
-            # Create the "save" folder if it doesn't exist
-            save_folder = f"{img_name.strip(filename)}{filename.split('.')[0]}-cropped"
-
-            os.makedirs(save_folder, exist_ok=True)
             cropped_img.save(os.path.join(save_folder, f"{num}-{filename}"), quality=100)
 
             left += new_width
@@ -60,4 +64,4 @@ def create_cropped_image(num_images, img_name):
         print(f"Error: {e}")
         exit(1)
 
-#create_cropped_image(3, "./test-photo.jpg")
+#create_cropped_image(2, "./test-photo.jpg")

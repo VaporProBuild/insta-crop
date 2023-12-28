@@ -5,6 +5,18 @@ import tkinter as tk
 from tkinter import filedialog
 from PIL import ImageTk, Image
 
+def create_image(image_filepath):
+
+    image = Image.open(image_filepath)
+    new_height = 200
+
+    aspect_ratio = image.width / image.height
+    new_width = int(new_height * aspect_ratio)
+    resized_image = image.resize((new_width, new_height))
+
+    return ImageTk.PhotoImage(resized_image)
+
+
 class FileBrowserApp:
 
     filepath: str = ''
@@ -33,18 +45,32 @@ class FileBrowserApp:
 
     def browse_file(self):
         file_path = filedialog.askopenfilename()
+
+        # If there is an image already displayed, remove it not destroy
+        if hasattr(self, 'image_canvas'):
+            self.image_canvas.destroy()
+            if hasattr(self, 'canvas'):
+                self.canvas.destroy()
+            if hasattr(self, 'success_label'):
+                self.success_label_text.set('')
+
         if file_path:
             self.filepath = file_path
 
             # Show photo slider and enter button after file has been chosen
             # Display file that has been choosen
 
-            image = ImageTk.PhotoImage(Image.open(self.filepath))
-            self.label_image = tk.Label(image=image)
-            self.label_image.image = image
+            self.image_canvas = tk.Canvas(self.master, width=self.master.winfo_width())
+            img = create_image(self.filepath)
+
+            self.label_image = tk.Label(self.image_canvas, image=img)
+            self.label_image.image = img
+            self.label_image.pack(side=tk.TOP)
             # Position image
             max_cropped = max_num_cropped_images(self.filepath)
-            self.label_image.grid(row=2, column=0, padx=10, pady=10, columnspan=3)
+
+            self.image_canvas.grid(row=2, column=0, padx=10, columnspan=3)
+
             self.slider_label_text.set(f"Select a value (1-{max_cropped}):")
             self.slider_label.grid(row=3, column=0, padx=10, pady=10, columnspan=3)
             self.slider.config(to=max_cropped)
@@ -54,13 +80,21 @@ class FileBrowserApp:
     def on_enter(self):
         saved_folder = create_cropped_image(self.slider.get(), self.filepath)
         self.success_label_text.set(f"Successfully saved in folder: {saved_folder}")
-        for num in range(self.slider.get()):
-            num+=1
-            image = ImageTk.PhotoImage(Image.open(f"{saved_folder}/{num}-{os.path.basename(self.filepath)}"))
-            self.label_image = tk.Label(image=image)
+
+        # Create a canvas element to put the output images on with the width of the tkinter window
+        #clear the canvas if it already exists
+        if hasattr(self, 'canvas'):
+            self.canvas.destroy()
+        self.canvas = tk.Canvas(self.master, width=self.master.winfo_width())
+
+        for file in sorted(os.listdir(saved_folder), key=lambda x: int(x.split('-')[0])):
+            image = create_image(os.path.join(saved_folder, file))
+            self.label_image = tk.Label(self.canvas, image=image)
             self.label_image.image = image
-            # Position image
-            self.label_image.grid(row=6, column=num-1, padx=10, pady=10)
+            # Position all the images next to one another and all of them centered in the canvas
+            self.label_image.pack(padx=5, pady=15, side=tk.LEFT)
+
+        self.canvas.grid(row=6, column=0, padx=10, pady=10, columnspan=3)
 
         self.success_label.grid(row=7, column=0, padx=10, pady=10, columnspan=3)
 
