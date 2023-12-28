@@ -22,3 +22,7 @@ Use the `instacrop.py` script to crop your photos. It will create a new folder c
 ```
 python3 instacrop.py
 ```
+
+To make this into a executable to share simply use the 
+
+```pyinstaller --noconsole --name "Insta-Crop" app.py```
