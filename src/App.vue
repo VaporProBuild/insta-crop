@@ -14,8 +14,8 @@
   </div>
   <!-- Slider between 1-5 -->
   <div class="slider">
+    Number of Photos: {{ sliderValue }}
     <input type="range" min="1" max="8" value="1" v-model="sliderValue" id="myRange">
-    {{ sliderValue }} {{ this.getLocalAspectRatio() }}
   </div>
   <div class="display-container">
     <div v-for="index in parseInt(this.sliderValue)" :key="index" class="display-preview">
@@ -85,7 +85,7 @@ export default {
         image
       };
     },
-    crop() {
+    async crop() {
       const { coordinates, canvas } = this.$refs.cropper.getResult();
       const newWidth = coordinates.width / parseInt(this.sliderValue);
 
@@ -99,6 +99,7 @@ export default {
         // Set the dimensions of the cropped image canvas
         croppedImage.width = newWidth;
         croppedImage.height = coordinates.height;
+        croppedImage.aspectRatio = 16 / 9;
 
         // Draw the first half of the image onto the cropped image canvas
         ctx.drawImage(
@@ -107,17 +108,19 @@ export default {
           y, // Start Y position in the original image
           newWidth, // Width of the portion to draw (half of the original width)
           coordinates.height, // Height of the portion to draw (full height of the original image)
-          0, // Destination X position in the cropped image canvas
-          0, // Destination Y position in the cropped image canvas
+          100, // Destination X position in the cropped image canvas
+          100, // Destination Y position in the cropped image canvas
           newWidth, // Width of the drawn portion in the cropped image canvas
           coordinates.height // Height of the drawn portion in the cropped image canvas
         );
 
         // Convert the canvas to a blob with specified format and quality
-        croppedImage.toBlob((blob) => {
+        var savedImageNum = 0;
+        await croppedImage.toBlob((blob) => {
           // Create a download link
           const link = document.createElement('a');
-          link.download = 'image.png';
+          link.download = 'asdf' + savedImageNum.toString() + '.png';
+          savedImageNum++;
 
           // Create a URL for the blob and set it as the href of the link
           link.href = URL.createObjectURL(blob);
