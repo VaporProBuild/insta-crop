@@ -35,3 +35,7 @@ python3 instacrop.py
 To make this into a executable to share simply use the 
 
 ```pyinstaller --noconsole --name "Insta-Crop" app.py```
+
+To redeploy app
+```npm run deploy```
+https://mkay11.medium.com/how-to-deploy-your-vite-vue-3-application-in-github-pages-2023-2b842f50576a
