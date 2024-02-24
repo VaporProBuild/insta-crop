@@ -14,7 +14,7 @@
   </div>
   <!-- Slider between 1-5 -->
   <div class="slider">
-    <input type="range" min="2" max="6" value="1" v-model="sliderValue" id="myRange">
+    <input type="range" min="1" max="8" value="1" v-model="sliderValue" id="myRange">
     {{ sliderValue }} {{ this.getLocalAspectRatio() }}
   </div>
   <div class="display-container">
@@ -47,8 +47,8 @@ export default {
   data() {
     return {
       file: null,
-      sliderValue: 2,
-      img: 'https://images.unsplash.com/photo-1682687219640-b3f11f4b7234?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      sliderValue: 1,
+      img: null,
       result: {
         coordinates: {
           width: 0,
@@ -66,16 +66,16 @@ export default {
     document.getElementById("file").addEventListener("change", this.onFileChange);
   },
   methods: {
-    // onFileChange(e) {
-    //   this.file = e.target.files[0];
-    //   if (this.file) {
-    //     const reader = new FileReader();
-    //     reader.onload = (e) => {
-    //       this.img = e.target.result;
-    //     };
-    //     reader.readAsDataURL(this.file);
-    //   }
-    // },
+    onFileChange(e) {
+      this.file = e.target.files[0];
+      if (this.file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.img = e.target.result;
+        };
+        reader.readAsDataURL(this.file);
+      }
+    },
     getLocalAspectRatio() {
       return (this.sliderValue * 9) / 16;
     },
@@ -113,10 +113,24 @@ export default {
           coordinates.height // Height of the drawn portion in the cropped image canvas
         );
 
-        const link = document.createElement('a');
-        link.download = 'image.png';
-        link.href = croppedImage.toDataURL();
-        link.click();
+        // Convert the canvas to a blob with specified format and quality
+        croppedImage.toBlob((blob) => {
+          // Create a download link
+          const link = document.createElement('a');
+          link.download = 'image.png';
+
+          // Create a URL for the blob and set it as the href of the link
+          link.href = URL.createObjectURL(blob);
+
+          // Append the link to the document
+          document.body.appendChild(link);
+
+          // Trigger a click on the link to initiate the download
+          link.click();
+
+          // Remove the link from the document
+          document.body.removeChild(link);
+        }, 'image/png', 1.0); // You can adjust the format and quality parameters as needed
       }
     },
   }
