@@ -19,7 +19,7 @@
   </div>
   <div class="display-container">
     <div v-for="index in parseInt(this.sliderValue)" :key="index" class="display-preview">
-      <preview class="preview-image" :width="90" :height="160" :image="result.image" :coordinates="{
+      <preview :id="'previewimage' + index" :width="90" :height="160" :image="result.image" :coordinates="{
         width: result.coordinates.width / parseInt(this.sliderValue),
         height: result.coordinates.height,
         top: result.coordinates.top,
@@ -86,14 +86,38 @@ export default {
       };
     },
     crop() {
-      //Do logic here to save n amount of photos based on the selected amount to get proper cropping
-      const { coordinates, canvas, } = this.$refs.cropper.getResult();
-      this.image = canvas.toDataURL();
+      const { coordinates, canvas } = this.$refs.cropper.getResult();
       const newWidth = coordinates.width / parseInt(this.sliderValue);
-      const link = document.createElement('a');
-      link.download = 'image.png';
-      link.href = this.image;
-      link.click();
+
+      for (let i = 0; i < parseInt(this.sliderValue); i++) {
+        const x = 0 + (newWidth * i);
+        const y = coordinates.top;
+        const croppedImage = document.createElement('canvas');
+        const ctx = croppedImage.getContext('2d');
+
+        // //https://www.w3schools.com/jsref/canvas_drawimage.asp
+        // Set the dimensions of the cropped image canvas
+        croppedImage.width = newWidth;
+        croppedImage.height = coordinates.height;
+
+        // Draw the first half of the image onto the cropped image canvas
+        ctx.drawImage(
+          canvas,
+          x, // Start X position in the original image
+          y, // Start Y position in the original image
+          newWidth, // Width of the portion to draw (half of the original width)
+          coordinates.height, // Height of the portion to draw (full height of the original image)
+          0, // Destination X position in the cropped image canvas
+          0, // Destination Y position in the cropped image canvas
+          newWidth, // Width of the drawn portion in the cropped image canvas
+          coordinates.height // Height of the drawn portion in the cropped image canvas
+        );
+
+        const link = document.createElement('a');
+        link.download = 'image.png';
+        link.href = croppedImage.toDataURL();
+        link.click();
+      }
     },
   }
 }
